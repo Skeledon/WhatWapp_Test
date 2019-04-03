@@ -32,6 +32,12 @@ public class TableHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Try to move the specified card to the specified tableau column. Fails if it's not a valid move.
+    /// </summary>
+    /// <param name="c"> The card to move</param>
+    /// <param name="column"> The TAbleau column</param>
+    /// <returns>true if the move is valid, false if the move is not valid</returns>
     public bool MoveCardToTableauColumn(Card c, int column)
     {
         if (column >= TABLEAU_SLOTS)
@@ -40,6 +46,16 @@ public class TableHandler : MonoBehaviour
             return false;
         AddCardToTableau(c, column);
         return true;
+
+    }
+
+    /// <summary>
+    /// Moves the specified card to teh specified tableau column without checking for a valid move
+    /// </summary>
+    /// <param name="c"> The card to move</param>
+    /// <param name="column"> The TAbleau column</param>
+    public void ForceMoveToTableauColumn(Card c, int column)
+    {
 
     }
 

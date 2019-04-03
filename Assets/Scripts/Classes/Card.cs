@@ -11,14 +11,17 @@ public class Card
     public int Color {  get { return Suit / 2; } } // 0 = red, 1 = black, -1 = uncolored
 
     public bool Movable = true;
-    public bool CanBeMoved { get { return Movable && !IsCovered; } }
+    public bool CanBeMoved { get { return Movable && !IsFaceDown; } }
 
-    public bool IsCovered = false;
+    public bool IsFaceDown = true;
+
+    public int ID { get; private set; }
 
     public Card(int number, int suit)
     {
         Number = number;
         Suit = suit;
+        ID = suit * 13 + number-1;
     }
 
     public void AddCard(Card c)
@@ -32,5 +35,10 @@ public class Card
     public Card NextCard()
     {
         return nextCard;
+    }
+
+    public void FlipCard()
+    {
+        IsFaceDown = !IsFaceDown;
     }
 }
