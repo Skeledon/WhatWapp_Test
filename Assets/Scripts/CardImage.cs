@@ -24,6 +24,18 @@ public class CardImage : MonoBehaviour
 
     private Animator MyAnimator;
 
+    public Card MyLinkedCard { get; private set; }
+    public Transform NextCardPosition;
+
+    private Vector2 targetPosition;
+    public Vector2 TargetPosition
+    { get { return targetPosition; }
+        set
+        {
+            targetPosition = value;
+            transform.position = value;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -35,10 +47,10 @@ public class CardImage : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        transform.position = TargetPosition;
     }
 
-    public void SetupCardVisually(int number, int suit)
+    public void SetupCardVisually(int number, int suit, Card c)
     {
         //Initializes the background of both sides
         CardBack.sprite = BackGrounds.GetImage(1);
@@ -55,6 +67,8 @@ public class CardImage : MonoBehaviour
             Number.color = Red;
         else
             Number.color = Black;
+
+        MyLinkedCard = c;
     }
 
     public void Flip()

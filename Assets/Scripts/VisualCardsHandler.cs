@@ -28,18 +28,37 @@ public class VisualCardsHandler : MonoBehaviour
         foreach (Card c in cards)
         {
             GameObject tmp = Instantiate(CardPrefab,transform);
-            tmp.GetComponent<CardImage>().SetupCardVisually(c.Number, c.Suit);
+            tmp.GetComponent<CardImage>().SetupCardVisually(c.Number, c.Suit, c);
             MyCards.Add(tmp);
         }
 
         //DEBUG
-        MoveCardsDebug();
+        //MoveCardsDebug();
     }
 
     public void FlipCard(int id)
     {
         MyCards[id].GetComponent<CardImage>().Flip();
     }
+
+    public void MoveCard(int id, Vector2 position)
+    {
+        MyCards[id].GetComponent<CardImage>().TargetPosition = position;
+    }
+
+    public Vector2 GetNextCardPosition(int id)
+    {
+        return MyCards[id].GetComponent<CardImage>().NextCardPosition.position;
+    }
+
+
+
+
+
+
+
+
+
 
     private void MoveCardsDebug()
     {

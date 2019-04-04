@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Deck
 {
-    private const int CARDS_IN_DECK = 52;
-    private const int CARDS_PER_SUIT = 13;
+    public const int CARDS_IN_DECK = 52;
+    public const int CARDS_PER_SUIT = 13;
+
     private List<Card> CardList = new List<Card>();
 
 
@@ -14,7 +15,7 @@ public class Deck
         for(int i = 0; i < CARDS_IN_DECK; i++)
         {
             //The +1 is needed because the cards are numbered between 1 and 13, and not between 0 and 12
-            Card tmp = new Card((i % CARDS_PER_SUIT) + 1, i / CARDS_PER_SUIT);
+            Card tmp = new Card((i % CARDS_PER_SUIT) + 1, i / CARDS_PER_SUIT, i);
             CardList.Add(tmp);
         }
     }

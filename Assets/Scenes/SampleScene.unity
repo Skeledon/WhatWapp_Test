@@ -164,7 +164,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7.13
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -194,18 +194,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1805069969 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8978527116506322026, guid: e118f420249c31a448e2fa602e78d8e9,
-    type: 3}
-  m_PrefabInstance: {fileID: 8978527117990263547}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b28eef2974f86940857b37a287554da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &8978527117990263547
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -221,17 +209,17 @@ PrefabInstance:
     - target: {fileID: 8978527116106805689, guid: e118f420249c31a448e2fa602e78d8e9,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.18764548
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8978527116106805689, guid: e118f420249c31a448e2fa602e78d8e9,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.031887475
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8978527116106805689, guid: e118f420249c31a448e2fa602e78d8e9,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0044824197
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8978527116106805689, guid: e118f420249c31a448e2fa602e78d8e9,
         type: 3}
@@ -273,10 +261,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8978527116574320166, guid: e118f420249c31a448e2fa602e78d8e9,
+    - target: {fileID: 8978527116106912516, guid: e118f420249c31a448e2fa602e78d8e9,
         type: 3}
-      propertyPath: MyInterfaceController
-      value: 
-      objectReference: {fileID: 1805069969}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8978527116106912516, guid: e118f420249c31a448e2fa602e78d8e9,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e118f420249c31a448e2fa602e78d8e9, type: 3}
