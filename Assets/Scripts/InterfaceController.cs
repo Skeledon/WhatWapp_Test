@@ -13,6 +13,23 @@ public class InterfaceController : MonoBehaviour
         MyCardsHandler.GenerateCards(c);
     }
 
+    public void GenerateTableauSlots(Card[] slots)
+    {
+        MyVisualTableHandler.GenerateTableauSlotsCard(slots);
+    }
+
+    public void GenerateFoundationSlots(Card[] slots)
+    {
+        MyVisualTableHandler.GenerateFoundationSlotsCard(slots);
+    }
+
+    public void GenerateWasteSlot()
+    { }
+
+    public void GenerateDeckSlot()
+    { }
+
+
     public void FlipCard(int id)
     {
         MyCardsHandler.FlipCard(id);
@@ -26,5 +43,20 @@ public class InterfaceController : MonoBehaviour
     public Card[] GetTableauLastCards()
     {
         return MyGameHandler.GetTableauLastCards();
+    }
+
+    public void MoveCardToFoundation(Card c, Card destinationCard, int column)
+    {
+        MyVisualTableHandler.MoveCardToFoundation(c, column);
+    }
+
+    public Card[] GetFoundationLastCards()
+    {
+        return MyGameHandler.GetFoundationLastCards();
+    }
+
+    public void ExecuteMove(Move m)
+    {
+        MyGameHandler.ExecuteMove(m);
     }
 }

@@ -15,6 +15,8 @@ public class GameHandler : MonoBehaviour
     public int DeckIndex { get; private set; }
     public int WasteIndex { get; private set; }
 
+    private bool isGameStarted = false;
+
     // Start is called before the first frame update
     IEnumerator Start()
     {
@@ -41,11 +43,15 @@ public class GameHandler : MonoBehaviour
     {
         MyDeck.CreateDeck();
 
+        MyInterfaceController.GenerateTableauSlots(MyTableHandler.GetTableauSlots());
+        MyInterfaceController.GenerateFoundationSlots(MyTableHandler.GetFoundationSlots());
 
         MyInterfaceController.GenerateCards(MyDeck.GetCardList());
 
         MyDeck.ShuffleDeck();
         DealCards();
+        isGameStarted = true;
+        FlipLastTableauCards();
 
     }
 
@@ -62,27 +68,73 @@ public class GameHandler : MonoBehaviour
 
     public void ExecuteMove(Move m)
     {
+        //Tableau move
         if(m.To < FoundationIndex)
         {
             Card ret = MyTableHandler.MoveCardToTableauColumn(m.MovedCard, m.To, m.IsForced);
             if (ret != null)
             {
+                RemoveCardFromPreviousPosition(m.MovedCard, m.From);
                 MyInterfaceController.MoveCardToTableau(m.MovedCard, ret, m.To);
+
+
             }
         }
+        //Foundation move
         else if (m.To < DeckIndex)
-        { 
+        {
+            Card ret = MyTableHandler.MoveCardToFoundationColumn(m.MovedCard, m.To - FoundationIndex, m.IsForced);
+            if (ret != null)
+            {
+                RemoveCardFromPreviousPosition(m.MovedCard, m.From);
+                MyInterfaceController.MoveCardToFoundation(m.MovedCard, ret, m.To - FoundationIndex);
 
+
+            }
         }
+        //Deck move
         else if (m.To < WasteIndex)
         {
 
         }
+        //Waste move
         else
         {
 
         }
         MyMoveLog.LogMove(m);
+
+
+
+        if (isGameStarted)
+            FlipLastTableauCards();
+
+
+    }
+
+    private void RemoveCardFromPreviousPosition(Card c, int from)
+    {
+        //Tableau move
+        if (from < FoundationIndex)
+        {
+            MyTableHandler.RemoveCardFromTableau(c, from);
+        }
+        //Foundation move
+        else if (from < DeckIndex)
+        {
+            MyTableHandler.RemoveCardFromFoundation(c, from - FoundationIndex);
+        }
+        //Deck move
+        else if (from < WasteIndex)
+        {
+
+        }
+        //Waste move
+        else
+        {
+
+        }
+
     }
 
     public Card[] GetTableauLastCards()
@@ -90,5 +142,21 @@ public class GameHandler : MonoBehaviour
         return MyTableHandler.GetTableauLastCards();
     }
 
-    
+    public Card[] GetFoundationLastCards()
+    {
+        return MyTableHandler.GetFoundationLastCards();
+    }
+
+    private void FlipLastTableauCards()
+    {
+        Card[] lastTableauCard = GetTableauLastCards();
+        foreach(Card c in lastTableauCard )
+        {
+            if (c.IsFaceDown && c.ID >= 0)
+            {
+                c.FlipCard();
+                MyInterfaceController.FlipCard(c.ID);
+            }
+        }
+    }   
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OrderInLayerSetByY : MonoBehaviour
+public class OrderInLayerSetByZ : MonoBehaviour
 {
     public int StepPerYUnit = 10;
     public int AdditionalStep = 0;
@@ -16,6 +16,6 @@ public class OrderInLayerSetByY : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        myRenderer.sortingOrder = (int)(-transform.position.y * StepPerYUnit) + AdditionalStep;
+        myRenderer.sortingOrder = (int)(-transform.position.z * StepPerYUnit) + AdditionalStep;
     }
 }

@@ -79,6 +79,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardPrefab: {fileID: 7852175629633940843, guid: 37920ebb26501f6458327eef5e42ffe3,
     type: 3}
+  MyInterfaceController: {fileID: 8978527116506322026}
 --- !u!1 &8978527116506322027
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,6 +247,12 @@ PrefabInstance:
       propertyPath: MyInterfaceController
       value: 
       objectReference: {fileID: 8978527116506322026}
+    - target: {fileID: 1848435292239484572, guid: 70b764dd2116fec45836b4d99644f25c,
+        type: 3}
+      propertyPath: CardPrefab
+      value: 
+      objectReference: {fileID: 7852175629633940843, guid: 37920ebb26501f6458327eef5e42ffe3,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70b764dd2116fec45836b4d99644f25c, type: 3}
 --- !u!4 &3837930790619892792 stripped

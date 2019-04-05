@@ -5,6 +5,9 @@ using UnityEngine;
 public class VisualCardsHandler : MonoBehaviour
 {
     public GameObject CardPrefab;
+    public InterfaceController MyInterfaceController;
+
+    private MoveGenerator MyMoveGenerator = new MoveGenerator();
 
     private List<GameObject> MyCards = new List<GameObject>();
     // Start is called before the first frame update
@@ -16,7 +19,15 @@ public class VisualCardsHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if(Physics.Raycast(ray, out hit, 100f))
+            {
+                hit.transform.GetComponent<CardImage>().CardSelected();
+            }
+        }
     }
 
     /// <summary>
@@ -28,7 +39,9 @@ public class VisualCardsHandler : MonoBehaviour
         foreach (Card c in cards)
         {
             GameObject tmp = Instantiate(CardPrefab,transform);
-            tmp.GetComponent<CardImage>().SetupCardVisually(c.Number, c.Suit, c);
+            tmp.GetComponent<CardImage>().SetupCardVisually(c.Number, c.Suit, c, gameObject);
+            //tmp.GetComponent<CardImage>().TargetPosition = transform.position;
+            tmp.GetComponent<CardImage>().TargetTransform = transform;
             MyCards.Add(tmp);
         }
 
@@ -41,17 +54,26 @@ public class VisualCardsHandler : MonoBehaviour
         MyCards[id].GetComponent<CardImage>().Flip();
     }
 
-    public void MoveCard(int id, Vector2 position)
+    public void MoveCard(int id, Transform destination, bool isOnTableau)
     {
-        MyCards[id].GetComponent<CardImage>().TargetPosition = position;
+        MyCards[id].GetComponent<CardImage>().TargetTransform = destination;
+        MyCards[id].GetComponent<CardImage>().IsOnTableau = isOnTableau;
     }
 
-    public Vector2 GetNextCardPosition(int id)
+    public Transform GetNextCardPosition(int id)
     {
-        return MyCards[id].GetComponent<CardImage>().NextCardPosition.position;
+        return MyCards[id].GetComponent<CardImage>().NextCardPosition;
     }
 
-
+    public void CardSelected(Card c, int tableSlot)
+    {
+        if (!c.IsFaceDown)
+            if (MyMoveGenerator.AddCardToMove(c, tableSlot))
+            {
+                MyInterfaceController.ExecuteMove(MyMoveGenerator.GetMove());
+            }
+            
+    }
 
 
 
@@ -64,7 +86,7 @@ public class VisualCardsHandler : MonoBehaviour
     {
         for(int i = 0; i< MyCards.Count; i++)
         {
-            MyCards[i].transform.position = new Vector2((i % 13) * 2, (i / 13) * 2);
+            MyCards[i].transform.position = new Vector3((i % 13) * 2, (i / 13) * 2,0);
         }
     }
 

@@ -17,6 +17,7 @@ public class Card
 
     public int ID { get; private set; }
 
+
     public Card(int number, int suit)
         : this(number,suit,-1)
     {
@@ -48,6 +49,14 @@ public class Card
         }
     }
 
+    public void RemoveCard(Card c)
+    {
+        if (c == nextCard)
+            nextCard = null;
+        else
+            nextCard.RemoveCard(c);
+    }
+
     public Card NextCard()
     {
         return nextCard;
@@ -56,5 +65,11 @@ public class Card
     public void FlipCard()
     {
         IsFaceDown = !IsFaceDown;
+    }
+
+    public void SetAsSlot()
+    {
+        IsFaceDown = false;
+        Movable = false;
     }
 }

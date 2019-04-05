@@ -55,7 +55,7 @@ public class Deck
         return tmp;
     }
 
-    public void AddCardToDeck(Card c)
+    public void AddCardOnTopOfDeck(Card c)
     {
         CardList.Insert(0, c);
     }
