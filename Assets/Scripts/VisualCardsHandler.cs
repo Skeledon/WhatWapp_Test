@@ -23,9 +23,15 @@ public class VisualCardsHandler : MonoBehaviour
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if(Physics.Raycast(ray, out hit, 100f))
+            if(Physics.Raycast(ray, out hit, 300f))
             {
-                hit.transform.GetComponent<CardImage>().CardSelected();
+                if(hit.transform.CompareTag("Card"))
+                    hit.transform.GetComponent<CardImage>().CardSelected();
+                else if (hit.transform.CompareTag("Deck"))
+                {
+                    MyInterfaceController.DrawFromDeck();
+                }
+
             }
         }
     }
@@ -45,8 +51,6 @@ public class VisualCardsHandler : MonoBehaviour
             MyCards.Add(tmp);
         }
 
-        //DEBUG
-        //MoveCardsDebug();
     }
 
     public void FlipCard(int id)
@@ -70,24 +74,17 @@ public class VisualCardsHandler : MonoBehaviour
         if (!c.IsFaceDown)
             if (MyMoveGenerator.AddCardToMove(c, tableSlot))
             {
-                MyInterfaceController.ExecuteMove(MyMoveGenerator.GetMove());
+                Move m = MyMoveGenerator.GetMove();
+                if (m.From == m.To)
+                {
+                    MyInterfaceController.TryFoundationMove(c, m.From);
+                }
+                else
+                {
+                    MyInterfaceController.ExecuteMove(m);
+                }
             }
             
-    }
-
-
-
-
-
-
-
-
-    private void MoveCardsDebug()
-    {
-        for(int i = 0; i< MyCards.Count; i++)
-        {
-            MyCards[i].transform.position = new Vector3((i % 13) * 2, (i / 13) * 2,0);
-        }
     }
 
 }

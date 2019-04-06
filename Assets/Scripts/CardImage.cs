@@ -35,7 +35,7 @@ public class CardImage : MonoBehaviour
     public Transform TargetTransform;
 
     private Vector3 velocity;
-    private float smoothTime = .3f;
+    private float smoothTime = .2f;
 
     private bool isSlot = false;
     public bool IsOnTableau;
@@ -50,8 +50,16 @@ public class CardImage : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = Vector3.SmoothDamp(transform.position, TargetTransform.position, ref velocity, smoothTime);
-        if(isSlot || !IsOnTableau)
+        if (MyLinkedCard.IsSlot)
+        {
+            transform.position = TargetTransform.position;
+        }
+        else
+        {
+            transform.position = Vector3.SmoothDamp(transform.position, TargetTransform.position, ref velocity, smoothTime);
+        }
+
+        if (isSlot || !IsOnTableau)
         {
             NextCardPosition.position = NextPositions[1].position;
         }
@@ -63,6 +71,7 @@ public class CardImage : MonoBehaviour
 
     public void CardSelected()
     {
+        Debug.Log(currentTableSlot);
         MyHandler.CardSelected(MyLinkedCard, currentTableSlot);
     }
 

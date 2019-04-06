@@ -9,6 +9,13 @@ public class Deck
 
     private List<Card> CardList = new List<Card>();
 
+    public int CardsRemaining
+    {
+        get
+        {
+            return CardList.Count;
+        }
+    }
 
     public void CreateDeck()
     {
@@ -58,5 +65,8 @@ public class Deck
     public void AddCardOnTopOfDeck(Card c)
     {
         CardList.Insert(0, c);
+        c.FlipCard();
     }
+
+
 }

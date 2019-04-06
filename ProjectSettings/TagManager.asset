@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - TableSlot
+  - Card
+  - Deck
   layers:
   - Default
   - TransparentFX

@@ -9,15 +9,21 @@ public class VisualTableHandler : MonoBehaviour
     public GameObject[] TableauColumns;
     public GameObject[] Foundations;
     public GameObject Deck;
+    public GameObject Waste;
 
+    [HideInInspector]
     public List<GameObject> TableauSlots = new List<GameObject>();
+    [HideInInspector]
     public List<GameObject> FoundationSlots = new List<GameObject>();
+    [HideInInspector]
+    public GameObject WasteSlot;
 
     public VisualCardsHandler MyVisualCardHandler;
     public InterfaceController MyInterfaceController;
 
     private Transform[] TableauNextPositions = new Transform[TableHandler.TABLEAU_SLOTS];
     private Transform[] FoundationNextPositions = new Transform[TableHandler.FOUNDATION_SLOTS];
+    private Transform WasteNextPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -63,7 +69,19 @@ public class VisualTableHandler : MonoBehaviour
                 FoundationNextPositions[i] = MyVisualCardHandler.GetNextCardPosition(lasts[i].ID);
             }
         }
+    }
 
+    private void UpdateNextWastePosition()
+    {
+        Card last = MyInterfaceController.GetWasteLastCard();
+        if(last.ID < 0)
+        {
+            WasteNextPosition = WasteSlot.GetComponent<CardImage>().NextCardPosition;
+        }
+        else
+        {
+            WasteNextPosition = MyVisualCardHandler.GetNextCardPosition(last.ID);
+        }
     }
 
     public void MoveCardToTableau(Card c, int column)
@@ -71,6 +89,7 @@ public class VisualTableHandler : MonoBehaviour
         MyVisualCardHandler.MoveCard(c.ID, TableauNextPositions[column], true);
         UpdateNextTableauPositions();
         UpdateNextFoundationPositions();
+        UpdateNextWastePosition();
     }
 
     public void MoveCardToFoundation(Card c, int column)
@@ -78,6 +97,23 @@ public class VisualTableHandler : MonoBehaviour
         MyVisualCardHandler.MoveCard(c.ID, FoundationNextPositions[column], false);
         UpdateNextFoundationPositions();
         UpdateNextTableauPositions();
+        UpdateNextWastePosition();
+    }
+
+    public void MoveCardToWaste(Card c)
+    {
+        MyVisualCardHandler.MoveCard(c.ID, WasteNextPosition, false);
+        UpdateNextFoundationPositions();
+        UpdateNextTableauPositions();
+        UpdateNextWastePosition();
+    }
+
+    public void MoveCardToDeck(Card c)
+    {
+        MyVisualCardHandler.MoveCard(c.ID, MyVisualCardHandler.transform, false);
+        UpdateNextFoundationPositions();
+        UpdateNextTableauPositions();
+        UpdateNextWastePosition();
     }
 
     public void GenerateTableauSlotsCard(Card[] slots)
@@ -103,5 +139,15 @@ public class VisualTableHandler : MonoBehaviour
             tmp.GetComponent<CardImage>().Flip();
         }
         UpdateNextFoundationPositions();
+    }
+
+    public void GenerateWasteSlotCard(Card c)
+    {
+        GameObject tmp = Instantiate(CardPrefab, transform);
+        tmp.GetComponent<CardImage>().SetupCardVisually(c.Number, c.Suit, c, MyVisualCardHandler.gameObject);
+        tmp.GetComponent<CardImage>().TargetTransform = Waste.transform;
+        WasteSlot = tmp;
+        tmp.GetComponent<CardImage>().Flip();
+        UpdateNextWastePosition();
     }
 }

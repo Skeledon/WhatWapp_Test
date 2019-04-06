@@ -23,8 +23,10 @@ public class InterfaceController : MonoBehaviour
         MyVisualTableHandler.GenerateFoundationSlotsCard(slots);
     }
 
-    public void GenerateWasteSlot()
-    { }
+    public void GenerateWasteSlot(Card c)
+    {
+        MyVisualTableHandler.GenerateWasteSlotCard(c);
+    }
 
     public void GenerateDeckSlot()
     { }
@@ -35,6 +37,7 @@ public class InterfaceController : MonoBehaviour
         MyCardsHandler.FlipCard(id);
     }
 
+    #region Tableau
     public void MoveCardToTableau(Card c, Card destinationCard, int column)
     {
         MyVisualTableHandler.MoveCardToTableau(c, column);
@@ -44,7 +47,9 @@ public class InterfaceController : MonoBehaviour
     {
         return MyGameHandler.GetTableauLastCards();
     }
+    #endregion
 
+    #region Foundation
     public void MoveCardToFoundation(Card c, Card destinationCard, int column)
     {
         MyVisualTableHandler.MoveCardToFoundation(c, column);
@@ -54,9 +59,41 @@ public class InterfaceController : MonoBehaviour
     {
         return MyGameHandler.GetFoundationLastCards();
     }
+    #endregion
 
+    #region Waste
+
+    public void MoveCardToWaste(Card c, Card destinationCard)
+    {
+        MyVisualTableHandler.MoveCardToWaste(c);
+    }
+
+    public Card GetWasteLastCard()
+    {
+        return MyGameHandler.GetWasteLastCard();
+    }
+    #endregion
+
+    #region Deck
+
+    public void MoveCardToDeck(Card c)
+    {
+        MyVisualTableHandler.MoveCardToDeck(c);
+    }
+
+    #endregion
     public void ExecuteMove(Move m)
     {
         MyGameHandler.ExecuteMove(m);
+    }
+
+    public void TryFoundationMove(Card c, int from)
+    {
+        MyGameHandler.TryFoundationMove(c, from);
+    }
+
+    public void DrawFromDeck()
+    {
+        MyGameHandler.DrawFromDeck();
     }
 }

@@ -15,8 +15,8 @@ public class TableHandler
 
     private Card[] Tableau = new Card[TABLEAU_SLOTS];
     private Card[] Foundation = new Card[FOUNDATION_SLOTS];
-    private Card Waste = new Card(0,-2);
-    private Card DeckSlot = new Card(-1, -2);
+    private Card Waste = new Card(-1,-2);
+    private Card DeckSlot = new Card(-2, -2);
     private ExpectedMove[] TableauExpectedMoves = new ExpectedMove[TABLEAU_SLOTS];
     private ExpectedMove[] FoundationExpectedMoves = new ExpectedMove[FOUNDATION_SLOTS];
 
@@ -34,6 +34,8 @@ public class TableHandler
             Foundation[i].SetAsSlot();
 
         }
+
+        Waste.SetAsSlot();
 
         CalculateExpectedMoves();
     }
@@ -174,6 +176,46 @@ public class TableHandler
     {
         Foundation[column].RemoveCard(c);
     }
+    #endregion
+    #region Waste
+    public Card MoveCardToWaste(Card c, Move m, int deckIndex)
+    {
+        return MoveCardToWaste(c,m, deckIndex, false);
+    }
+
+
+    public Card MoveCardToWaste(Card c,Move m, int deckIndex, bool forced)
+    {
+        if (m.From != deckIndex && !forced)
+            return null;
+        return AddCardToWaste(c);
+    }
+
+    public Card GetWasteSlot()
+    {
+        return Waste;
+    }
+
+    public Card GetWasteLastCard()
+    {
+        Card tmpCard = Waste;
+        while (tmpCard.NextCard() != null)
+        {
+            tmpCard = tmpCard.NextCard();
+        }
+        return tmpCard;
+    }
+
+    private Card AddCardToWaste(Card c)
+    {
+        return Waste.AddCard(c);
+    }
+
+    public void RemoveCardFromWaste(Card c)
+    {
+        Waste.RemoveCard(c);
+    }
+
 
     #endregion
     private void CalculateExpectedMoves()

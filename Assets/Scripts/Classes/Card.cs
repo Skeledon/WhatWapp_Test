@@ -14,6 +14,7 @@ public class Card
     public bool CanBeMoved { get { return Movable && !IsFaceDown; } }
 
     public bool IsFaceDown = true;
+    public bool IsSlot { get; private set; }
 
     public int ID { get; private set; }
 
@@ -71,5 +72,6 @@ public class Card
     {
         IsFaceDown = false;
         Movable = false;
+        IsSlot = true;
     }
 }
