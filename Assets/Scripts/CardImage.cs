@@ -29,28 +29,31 @@ public class CardImage : MonoBehaviour
 
     public Card MyLinkedCard { get; private set; }
     public Transform NextCardPosition;
-
     public Transform[] NextPositions;
 
     public Transform TargetTransform;
 
     private Vector3 velocity;
-    private float smoothTime = .2f;
+    private float smoothTime = .05f;
 
     private bool isSlot = false;
     public bool IsOnTableau;
+    public bool IsPickedUpByMouse = false;
+
+    private bool doubleClickReady = false;
+    private const float TIME_FOR_DOUBLECLICK = .2f;
 
     // Start is called before the first frame update
     void Awake()
     {
         MyAnimator = GetComponentInChildren<Animator>();
-        //SetupCardVisually(Random.Range(0,14), Random.Range(0,4));
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (MyLinkedCard.IsSlot)
+        //Keep the card on the correct position
+        if (MyLinkedCard.IsSlot || IsPickedUpByMouse)
         {
             transform.position = TargetTransform.position;
         }
@@ -59,6 +62,7 @@ public class CardImage : MonoBehaviour
             transform.position = Vector3.SmoothDamp(transform.position, TargetTransform.position, ref velocity, smoothTime);
         }
 
+        //Set the correct position for the next card
         if (isSlot || !IsOnTableau)
         {
             NextCardPosition.position = NextPositions[1].position;
@@ -69,10 +73,33 @@ public class CardImage : MonoBehaviour
         }
     }
 
-    public void CardSelected()
+    public void CardSelected(Transform mouseTarget)
     {
-        Debug.Log(currentTableSlot);
-        MyHandler.CardSelected(MyLinkedCard, currentTableSlot);
+        if (isSlot)
+            return;
+        TargetTransform = mouseTarget;
+        if (!doubleClickReady)
+            MyHandler.CardSelected(MyLinkedCard, currentTableSlot);
+        else
+            MyHandler.CardDoubleClicked(MyLinkedCard, currentTableSlot);
+        StartCoroutine(DoubleClickTimer());
+    }
+
+    private IEnumerator DoubleClickTimer()
+    {
+        doubleClickReady = true;
+        yield return new WaitForSeconds(TIME_FOR_DOUBLECLICK);
+        doubleClickReady = false;
+    }
+
+    public int ReleaseCard()
+    {
+        return currentTableSlot;
+    }
+
+    public void RevertToOldTarget(Transform t)
+    {
+        TargetTransform = t;
     }
 
     public void SetupCardVisually(int number, int suit, Card c, GameObject handler)

@@ -32,6 +32,17 @@ public class MoveGenerator
         }
     }
 
+    public void SetFromCard(Card c, int from)
+    {
+        cardToMove = c;
+        this.from = from;
+    }
+
+    public void SetDestination(int to)
+    {
+        this.to = to;
+    }
+
     public Move GetMove()
     {
             return new Move(cardToMove, from, to, forced);

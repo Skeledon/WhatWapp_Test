@@ -5,6 +5,9 @@ using UnityEngine;
 public class GameHandler : MonoBehaviour
 {
     public InterfaceController MyInterfaceController;
+    public PointsHandler MyPointsHandler;
+    public TimeHandler MyTimeHandler;
+    public MoveCountHandler MyMoveCountHandler;
 
     private Deck MyDeck = new Deck();
     private TableHandler MyTableHandler = new TableHandler();
@@ -17,18 +20,13 @@ public class GameHandler : MonoBehaviour
 
     private bool isGameStarted = false;
 
+    #region Initialization
     // Start is called before the first frame update
     IEnumerator Start()
     {
         yield return new WaitForEndOfFrame();
         SetupIndexes();
         StartGame();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private void SetupIndexes()
@@ -51,8 +49,9 @@ public class GameHandler : MonoBehaviour
 
         MyDeck.ShuffleDeck();
         DealCards();
-        isGameStarted = true;
         FlipLastTableauCards();
+        isGameStarted = true;
+
 
     }
 
@@ -66,7 +65,8 @@ public class GameHandler : MonoBehaviour
             }
         }
     }
-
+    #endregion
+    #region Deck
     public void DrawFromDeck()
     {
         if (MyDeck.CardsRemaining > 0)
@@ -79,29 +79,52 @@ public class GameHandler : MonoBehaviour
     {
         while(MyTableHandler.GetWasteLastCard().ID >= 0)
         {
-            ExecuteMove(new Move(MyTableHandler.GetWasteLastCard(), WasteIndex, DeckIndex, true));
+            ExecuteMove(new Move(MyTableHandler.GetWasteLastCard(), WasteIndex, DeckIndex, true, true), false, true);
         }
+        MyPointsHandler.ChangePoints(PointsHandler.RECYCLE);
+        MyMoveCountHandler.AddMove();
+    }
+    #endregion
+    #region MovesExecution
+    public void UndoMove()
+    {
+        Move m;
+        m = MyMoveLog.UndoMove();
+        if (m != null)
+        {
+            ExecuteMove(m, true, m.RollBack);
+        }
+        if (MyMoveLog.GetLastMove() != null)
+            if (m.RollBack && MyMoveLog.GetLastMove().RollBack)
+                UndoMove();
     }
 
     public void TryFoundationMove(Card c, int from)
     {
-        for(int i = 0; i < TableHandler.FOUNDATION_SLOTS; i++)
-        {
-            ExecuteMove(new Move(c, from, FoundationIndex + i, false));
-        }
+        ExecuteMove(new Move(c, from, FoundationIndex + c.Suit, false));
     }
+
 
     public void ExecuteMove(Move m)
     {
+        ExecuteMove(m, false, false);
+    }
+
+    public void ExecuteMove(Move m, bool undoMove, bool rollBack)
+    {
+        bool validMove = false;
+        if (undoMove)
+            FlipBackTableauCards(m);
         //Move to Tableau
         if(m.To < FoundationIndex)
         {
             Card ret = MyTableHandler.MoveCardToTableauColumn(m.MovedCard, m.To, m.IsForced);
             if (ret != null)
             {
-                RemoveCardFromPreviousPosition(m.MovedCard, m.From);
+                RemoveCardFromPreviousPosition(m, undoMove);
                 MyInterfaceController.MoveCardToTableau(m.MovedCard, ret, m.To);
-                MyMoveLog.LogMove(m);
+                validMove = true;
+
 
             }
         }
@@ -111,9 +134,9 @@ public class GameHandler : MonoBehaviour
             Card ret = MyTableHandler.MoveCardToFoundationColumn(m.MovedCard, m.To - FoundationIndex, m.IsForced);
             if (ret != null)
             {
-                RemoveCardFromPreviousPosition(m.MovedCard, m.From);
+                RemoveCardFromPreviousPosition(m, undoMove);
                 MyInterfaceController.MoveCardToFoundation(m.MovedCard, ret, m.To - FoundationIndex);
-                MyMoveLog.LogMove(m);
+                validMove = true;
 
             }
         }
@@ -121,10 +144,11 @@ public class GameHandler : MonoBehaviour
         else if (m.To < WasteIndex)
         {
             MyDeck.AddCardOnTopOfDeck(m.MovedCard);
-            RemoveCardFromPreviousPosition(m.MovedCard, m.From);
+            RemoveCardFromPreviousPosition(m, undoMove);
             MyInterfaceController.MoveCardToDeck(m.MovedCard);
             MyInterfaceController.FlipCard(m.MovedCard.ID);
-            MyMoveLog.LogMove(m);
+            validMove = true;
+
         }
         //Move to waste
         else
@@ -133,27 +157,48 @@ public class GameHandler : MonoBehaviour
             Card ret = MyTableHandler.MoveCardToWaste(m.MovedCard, m, DeckIndex, m.IsForced);
             if (ret != null)
             {
-                RemoveCardFromPreviousPosition(m.MovedCard, m.From);
+                RemoveCardFromPreviousPosition(m, undoMove);
                 MyInterfaceController.MoveCardToWaste(m.MovedCard, ret);
-                MyMoveLog.LogMove(m);
-
+                validMove = true;
             }
             
         }
 
 
 
+        if (isGameStarted && !undoMove && validMove)
+        {
+
+            FlipLastTableauCards(m);
+
+            MyMoveLog.LogMove(m);
+        }
         if (isGameStarted)
         {
-            FlipLastTableauCards();
             FlipLastWasteCard();
-        }
 
+            //In case of UndoMove the start and the destination are inverted.
+            //This is because the points need to be calculated on the original move direciton, not the undo
+            if (undoMove)
+                SetPointsForMove(m, undoMove, m.To, m.From);
+            else
+                SetPointsForMove(m, undoMove, m.From, m.To);
+            //The moves are counted here because undos count as a move
+            if (validMove && !rollBack)
+                MyMoveCountHandler.AddMove();
+        }
 
     }
 
-    private void RemoveCardFromPreviousPosition(Card c, int from)
+    private void RemoveCardFromPreviousPosition(Move m)
     {
+        RemoveCardFromPreviousPosition(m, false);
+    }
+
+    private void RemoveCardFromPreviousPosition(Move m, bool undoMove)
+    {
+        Card c = m.MovedCard;
+        int from = m.From;
         //Tableau move
         if (from < FoundationIndex)
         {
@@ -167,7 +212,8 @@ public class GameHandler : MonoBehaviour
         //Deck move
         else if (from < WasteIndex)
         {
-
+            if(undoMove)
+                MyDeck.RemoveCard(c);
         }
         //Waste move
         else
@@ -177,6 +223,8 @@ public class GameHandler : MonoBehaviour
 
     }
 
+    #endregion
+    #region CardGetter
     public Card[] GetTableauLastCards()
     {
         return MyTableHandler.GetTableauLastCards();
@@ -191,19 +239,42 @@ public class GameHandler : MonoBehaviour
     {
         return MyTableHandler.GetWasteLastCard();
     }
-
+    #endregion
+    #region FlipHandlers
     private void FlipLastTableauCards()
     {
+        FlipLastTableauCards(null);
+    }
+
+    private void FlipLastTableauCards(Move m)
+    {
         Card[] lastTableauCard = GetTableauLastCards();
-        foreach(Card c in lastTableauCard )
+        for(int i = 0; i < lastTableauCard.Length; i++)
         {
+            Card c = lastTableauCard[i];
             if (c.IsFaceDown && c.ID >= 0)
             {
                 c.FlipCard();
                 MyInterfaceController.FlipCard(c.ID);
+                if(m!= null)
+                    m.FlipTableau(i);
+                if(isGameStarted)
+                    MyPointsHandler.ChangePoints(PointsHandler.FLIP_TABLEAU);
             }
         }
     }   
+
+    private void FlipBackTableauCards(Move m)
+    {
+        if(m.TableauFlipped >=0)
+        {
+            Card[] lastTableauCard = GetTableauLastCards();
+            int n = m.TableauFlipped;
+            lastTableauCard[n].FlipCard();
+            MyInterfaceController.FlipCard(lastTableauCard[n].ID);
+            MyPointsHandler.ChangePoints(-PointsHandler.FLIP_TABLEAU);
+        }
+    }
 
     private void FlipLastWasteCard()
     {
@@ -216,4 +287,35 @@ public class GameHandler : MonoBehaviour
             }
         }
     }
+
+    #endregion
+    #region Points
+
+    private void SetPointsForMove(Move m, bool undo, int from, int to)
+    {
+        int mult = undo ? -1 : 1;
+        int points = 0;
+
+        if (isGameStarted)
+        {
+            if (to < FoundationIndex)
+            {
+                if (from == WasteIndex)
+                    points = PointsHandler.WASTE_TO_TABLEAU;
+                else if (from < DeckIndex && from >= FoundationIndex)
+                    points = PointsHandler.FOUNDATION_TO_TABLEAU;
+            }
+            else if (to < DeckIndex)
+            {
+                if (from < FoundationIndex)
+                    points = PointsHandler.TABLEAU_TO_FOUNDATION;
+                else if (from == WasteIndex)
+                    points = PointsHandler.WASTE_TO_FOUNDATION;
+
+            }
+            points *= mult;
+            MyPointsHandler.ChangePoints(points);
+        }
+    }
+    #endregion
 }

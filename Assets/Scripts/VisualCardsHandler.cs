@@ -6,10 +6,16 @@ public class VisualCardsHandler : MonoBehaviour
 {
     public GameObject CardPrefab;
     public InterfaceController MyInterfaceController;
+    public Transform MousePositionTarget;
 
     private MoveGenerator MyMoveGenerator = new MoveGenerator();
 
     private List<GameObject> MyCards = new List<GameObject>();
+
+    private Transform oldSelectedCardTarget;
+    private CardImage pickedUpCard;
+
+    private bool doubleClick = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,13 +31,32 @@ public class VisualCardsHandler : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(ray, out hit, 300f))
             {
-                if(hit.transform.CompareTag("Card"))
-                    hit.transform.GetComponent<CardImage>().CardSelected();
+                if (hit.transform.CompareTag("Card"))
+                {
+                    CardImage ci =  hit.transform.GetComponent<CardImage>();
+                    if (!ci.MyLinkedCard.IsFaceDown)
+                    {
+                        pickedUpCard = ci;
+                        oldSelectedCardTarget = ci.TargetTransform;
+                        ci.IsPickedUpByMouse = true;
+                        ci.CardSelected(MousePositionTarget);
+
+
+
+                    }
+                }
                 else if (hit.transform.CompareTag("Deck"))
                 {
                     MyInterfaceController.DrawFromDeck();
                 }
+            }
+        }
 
+        if(Input.GetMouseButtonUp(0))
+        {
+            if(pickedUpCard != null)
+            {
+                ReleasePickedCard();
             }
         }
     }
@@ -71,7 +96,9 @@ public class VisualCardsHandler : MonoBehaviour
 
     public void CardSelected(Card c, int tableSlot)
     {
-        if (!c.IsFaceDown)
+        doubleClick = false;
+        MyMoveGenerator.SetFromCard(c, tableSlot);
+        /*if (!c.IsFaceDown)
             if (MyMoveGenerator.AddCardToMove(c, tableSlot))
             {
                 Move m = MyMoveGenerator.GetMove();
@@ -83,8 +110,32 @@ public class VisualCardsHandler : MonoBehaviour
                 {
                     MyInterfaceController.ExecuteMove(m);
                 }
+            }  */    
+    }
+
+    public void CardDoubleClicked(Card c, int tableSlot)
+    {
+        doubleClick = true;
+        MyMoveGenerator.SetFromCard(c, tableSlot);
+        ReleasePickedCard();
+
+        MyInterfaceController.TryFoundationMove(c, tableSlot);
+        
+    }
+
+    private void ReleasePickedCard()
+    {
+
+            MyMoveGenerator.SetDestination(pickedUpCard.ReleaseCard());
+            pickedUpCard.RevertToOldTarget(oldSelectedCardTarget);
+            pickedUpCard.IsPickedUpByMouse = false;
+            pickedUpCard = null;
+            if (!doubleClick)
+            {
+                Move m = MyMoveGenerator.GetMove();
+                MyInterfaceController.ExecuteMove(m);
             }
-            
+        
     }
 
 }
